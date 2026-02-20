@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Work Calendar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-200 min-h-screen flex items-center justify-center p-4">
+
+<div class="bg-white w-full max-w-7xl rounded-lg shadow-xl">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center px-6 py-4 border-b">
+    <h2 class="text-lg font-semibold text-gray-700">Add Work Calendar</h2>
+    <button class="text-gray-400 text-xl">&times;</button>
+  </div>
+
+  <div class="p-6">
+
+    <!-- Toggle -->
+    <label class="flex items-center gap-2 mb-4 cursor-pointer text-sm">
+      <input type="checkbox" id="halfToggle" class="w-4 h-4 text-blue-600">
+      Half working day & half weekend
+    </label>
+
+    <!-- Table -->
+    <div class="border rounded overflow-auto max-h-[450px]">
+
+      <table class="w-full table-fixed border-collapse text-sm">
+        <thead class="bg-gray-50 sticky top-0">
+          <tr>
+            <th class="p-3 border w-40"></th>
+            <th class="p-3 border text-center">All</th>
+            <th class="p-3 border text-center">1st</th>
+            <th class="p-3 border text-center">2nd</th>
+            <th class="p-3 border text-center">3rd</th>
+            <th class="p-3 border text-center">4th</th>
+            <th class="p-3 border text-center">5th</th>
+          </tr>
+        </thead>
+
+        <tbody id="calendarBody"></tbody>
+      </table>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="flex gap-3 mt-6">
+      <button id="saveBtn"
+        class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 text-sm">
+        Save
+      </button>
+
+      <button class="bg-gray-200 px-5 py-2 rounded hover:bg-gray-300 text-sm">
+        Cancel
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const body = document.getElementById("calendarBody");
+const halfToggle = document.getElementById("halfToggle");
+
+function createSelect() {
+  const select = document.createElement("select");
+  select.className = "border rounded px-2 py-1 text-xs";
+
+  const full = new Option("Full Day","full");
+  const first = new Option("1st Half","first");
+  const second = new Option("2nd Half","second");
+
+  select.append(full, first, second);
+  return select;
+}
+
+days.forEach(day => {
+  const row = document.createElement("tr");
+
+  // Day label
+  const dayCell = document.createElement("td");
+  dayCell.textContent = day;
+  dayCell.className = "border p-3 font-medium";
+  row.appendChild(dayCell);
+
+  const rowCheckboxes = [];
+
+  // ALL column
+  const allCell = document.createElement("td");
+  allCell.className = "border text-center";
+  const allCheckbox = document.createElement("input");
+  allCheckbox.type = "checkbox";
+  allCheckbox.className = "w-4 h-4";
+  allCell.appendChild(allCheckbox);
+  row.appendChild(allCell);
+
+  // Week columns
+  for(let i=1;i<=5;i++){
+    const cell = document.createElement("td");
+    cell.className = "border p-2";
+
+    const wrap = document.createElement("div");
+    wrap.className = "flex items-center gap-2 justify-center";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "w-4 h-4";
+
+    const select = createSelect();
+
+    wrap.append(checkbox, select);
+    cell.appendChild(wrap);
+    row.appendChild(cell);
+
+    rowCheckboxes.push({checkbox,select});
+  }
+
+  // ALL select logic
+  allCheckbox.addEventListener("change",()=>{
+    rowCheckboxes.forEach(item=>{
+      item.checkbox.checked = allCheckbox.checked;
+    });
+  });
+
+  body.appendChild(row);
+});
+
+
+// Half toggle logic
+halfToggle.addEventListener("change",()=>{
+  const selects = document.querySelectorAll("select");
+
+  selects.forEach(select=>{
+    if(!halfToggle.checked){
+      select.value = "full";
+      // select.disabled = true;   ❌ remove this line
+    } else {
+      select.disabled = false;
+    }
+  });
+});
+
+// initially disable half
+halfToggle.dispatchEvent(new Event("change"));
+
+
+// Save button
+document.getElementById("saveBtn").addEventListener("click",()=>{
+  const data = {};
+
+  [...body.rows].forEach(row=>{
+    const day = row.cells[0].innerText;
+    data[day] = [];
+
+    for(let i=2;i<row.cells.length;i++){
+      const checkbox = row.cells[i].querySelector("input");
+      const select = row.cells[i].querySelector("select");
+
+      data[day].push({
+        working: checkbox.checked,
+        type: select.value
+      });
+    }
+  });
+
+  console.log("Saved Data:",data);
+  alert("Calendar saved! Check console.");
+});
+</script>
+
+</body>
+</html>
