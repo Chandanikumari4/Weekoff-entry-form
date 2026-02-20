@@ -137,7 +137,7 @@ halfToggle.addEventListener("change",()=>{
   selects.forEach(select=>{
     if(!halfToggle.checked){
       select.value = "full";
-      select.disabled = true;
+      // select.disabled = true;   ❌ remove this line
     } else {
       select.disabled = false;
     }
